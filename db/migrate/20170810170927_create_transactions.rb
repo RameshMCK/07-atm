@@ -7,5 +7,8 @@ class CreateTransactions < ActiveRecord::Migration[5.1]
       
       t.timestamps
     end
+    
+    #adding foregign key constaints
+    add_foreign_key :transactions, :accounts
   end
 end
