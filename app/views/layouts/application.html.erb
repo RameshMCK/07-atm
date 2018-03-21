@@ -9,6 +9,22 @@
   </head>
 
   <body>
-    <%= yield %>
+    <%= render 'nav' %>
+    <div class = "container-fluid">
+      <div class="row">
+        <div class="col">
+          <%= yield %>          
+          
+        </div>
+      </div>
+      
+    </div>
+
+  <nav class="navbar fixed-bottom navbar-light bg-faded">
+    <span class="navbar-text">
+        (c) 2017 Galvanize, Inc.(hello)
+    </span>
+  </nav>
+
   </body>
 </html>

@@ -1,0 +1,34 @@
+<h1 class="display-4">Account List</h1>
+<table class="table table-striped" >
+<thead class="thead-inverse">
+    <tr>
+        <th></th>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Balance</th>
+        <th>FLags</th>
+        <th>Suspended?</th>
+    </tr>
+</thead>
+
+
+<tr>
+ <tbody>
+        <% @accounts.each do |a| %>
+            <tr>
+                <td>
+                    <%= link_to(a, method: :delete ) %>
+                </td>
+                <td><%= a.id %></td>
+                <td><%= link_to a.name, txn_account_path(a) %></td>
+                <td><%= a.category %></td>
+                <td><%= number_to_currency a.balance %></td>
+                <td><%= a.flags %></td>
+                <td><%= a.is_suspended %></td>
+            </tr>
+        <% end %>
+    </tbody>
+    
+    </tr>
+</table>    

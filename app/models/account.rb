@@ -10,7 +10,34 @@ class Account < ApplicationRecord
     
     #check if the combination already exists
     validates :name, :category, presence: true
+    #call backs
     after_save :check_suspension
+    
+    # #create accounts
+    def create(name, category)
+        
+        return if account_already_exists(name)
+        #ActiveRecord is module or a name space
+        #create transaction in rails
+        ActiveRecord::Base.transaction do
+            #note: need to use self or Account as a prefix when using balance, since it is not a variable or anythign defined in tis class
+            Account.create!(name: name, category: category)
+            #raise an error in rails
+            #raise 'explode'
+            #Transaction.create!(name: name, category: category)
+        end    
+    end    
+    
+    def destroy
+        ActiveRecord::Base.transaction do
+            #note: need to use self or Account as a prefix when using balance, since it is not a variable or anythign defined in tis class
+            Account.delete
+            #raise an error in rails
+            #raise 'explode'
+            #Transaction.create!(name: name, category: category)
+        end    
+        
+    end 
     
     def deposits
         self.transaction.where(category: 'Deposit')
@@ -57,6 +84,18 @@ class Account < ApplicationRecord
             end
         end    
     end
+
+    def clear_suspension
+        return if insufficient_funds
+
+        ActiveRecord::Base.transaction do
+            fee = 100
+            self.update!(balance: self.balance - fee, is_suspended: false)
+            Transaction.create!(amount: fee, category: 'Unfreeze', account_id: self.id)
+        end
+    end
+
+
     #ruby method seggregating the private methods. All he above is public
     private
     
@@ -67,15 +106,7 @@ class Account < ApplicationRecord
     end
     
     
-    def clear_suspension
-        return if insufficient_funds
-        fee = 100
-         ActiveRecord::Base.transaction do
-                self.update!(balance: self.balance - fee, is_suspended: false)
-                Transaction.create!(amount: fee, category: 'Unfreeze', account_id: self.id)
-            end
-        
-    end
+    
     def check_suspension
         if self.flags > 3 
             self.update!(is_suspended: true, flags: 0)
@@ -96,7 +127,11 @@ class Account < ApplicationRecord
         self.errors.any? #return a boolen
         
     end
-    
+
+    def account_already_exists(name)
+        self.errors.add(:account, 'account already exists') if Account.where(name: name).any?
+        self.errors.any?
+    end    
     
     def account_is_suspended
         self.errors.add(:account, 'is suspended due to overdrafts') if self.is_suspended
